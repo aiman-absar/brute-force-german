@@ -1,25 +1,25 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>German Vocabulary Quiz Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>German Vocabulary Quiz</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="game">
-    <h1>German Vocabulary Quiz</h1>
-    <div id="status">
-        Level: <span id="levelNum">1</span> |
-        Questions: <span id="totalNum">0</span> |
-        Correct: <span id="correctNum">0</span>
+  <h1>German Vocabulary Quiz</h1>
+  <section id="lookup">
+    <h2>Noun/Verb Lookup</h2>
+    <div>
+      <label for="noun-input">Noun:</label>
+      <input type="text" id="noun-input" placeholder="Enter a noun...">
+      <div id="noun-result"></div>
     </div>
-    <button id="testBtn">Test me</button>
-    <div id="questionDiv"></div>
-    <button id="submitBtn" style="display:none;">Submit Answer</button>
-    <div id="resultDiv"></div>
-</div>
-<script src="script.js"></script>
+    <div>
+      <label for="verb-input">Verb:</label>
+      <input type="text" id="verb-input" placeholder="Enter a verb...">
+      <div id="verb-result"></div>
+    </div>
+  </section>
+  <script src="script.js"></script>
 </body>
 </html>
