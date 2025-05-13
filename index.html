@@ -2,24 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>German Vocabulary Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>German Vocabulary Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>German Vocabulary Quiz</h1>
-  <section id="lookup">
-    <h2>Noun/Verb Lookup</h2>
-    <div>
-      <label for="noun-input">Noun:</label>
-      <input type="text" id="noun-input" placeholder="Enter a noun...">
-      <div id="noun-result"></div>
+  <div class="container">
+    <header><h1>German Vocabulary Quiz</h1></header>
+    <div class="status-bar">
+      <span>Level: <span id="level">1</span></span>
+      <span>Score: <span id="score">0</span>/<span id="total">0</span></span>
+      <button id="resetBtn">Reset</button>
     </div>
-    <div>
-      <label for="verb-input">Verb:</label>
-      <input type="text" id="verb-input" placeholder="Enter a verb...">
-      <div id="verb-result"></div>
+    <div class="content">
+      <div class="main">
+        <section id="nounQuiz">
+          <h2>Noun Quiz</h2>
+          <div id="nounQuestion">English meaning appears here</div>
+          <input type="text" id="nounAnswer" placeholder="German noun with article (e.g., die Insel)">
+          <button id="checkNoun">Check</button>
+          <div id="nounFeedback"></div>
+        </section>
+        <section id="verbQuiz" style="display:none">
+          <h2>Verb Quiz</h2>
+          <table id="verbTable">
+            <!-- Filled dynamically with pronouns and inputs -->
+          </table>
+          <button id="checkVerb">Check</button>
+          <div id="verbFeedback"></div>
+        </section>
+        <section id="lookup">
+          <h2>Lookup Noun/Verb</h2>
+          <input type="text" id="lookupInput" placeholder="Type a German noun or verb">
+          <button id="lookupBtn">Lookup</button>
+          <div id="lookupResult"></div>
+        </section>
+      </div>
+      <aside id="errorLog">
+        <h3>Errors</h3>
+        <ul id="errorList"></ul>
+      </aside>
     </div>
-  </section>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
