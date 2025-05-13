@@ -1,87 +1,9 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-header {
-  background: #4CAF50;
-  color: white;
-  padding: 10px;
-  text-align: center;
-}
-.status-bar {
-  background: #f0f0f0;
-  padding: 8px 10px;
-  border-bottom: 1px solid #ccc;
-  display: flex;
-  justify-content: space-between;
-}
-.status-bar span {
-  font-weight: bold;
-}
-#resetBtn {
-  padding: 5px 10px;
-}
-.content {
-  display: flex;
-  flex-direction: column;
-}
-.main {
-  padding: 10px;
-  flex: 3;
-}
-aside#errorLog {
-  padding: 10px;
-  border-left: 1px solid #ccc;
-  margin: 10px;
-}
-#nounQuestion {
-  font-size: 1.2em;
-  margin: 10px 0;
-}
-input[type="text"] {
-  padding: 5px;
-  font-size: 1em;
-  width: calc(100% - 12px);
-  margin-bottom: 5px;
-}
-button {
-  padding: 5px 10px;
-  font-size: 1em;
-}
-#errorLog ul {
-  list-style: none;
-  padding: 0;
-}
-#errorLog li {
-  margin: 5px 0;
-}
-#verbTable {
-  border-collapse: collapse;
-  margin: 10px 0;
-}
-#verbTable td {
-  padding: 4px 8px;
-}
-#verbTable input[type="text"] {
-  width: 100%;
-}
-.correct {
-  background-color: #cfc;
-}
-.incorrect {
-  background-color: #fcc;
-}
-/* Responsive layout */
-@media (min-width: 800px) {
-  .content {
-    flex-direction: row;
-  }
-  .main {
-    padding: 10px;
-  }
-  aside#errorLog {
-    margin: 10px;
-    max-width: 200px;
-  }
-}
+body { font-family: Arial; margin: 0; padding: 0; }
+header { background: #4CAF50; color: white; padding: 10px; text-align: center; }
+.status-bar { background: #f0f0f0; padding: 8px 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; }
+.content { display: flex; flex-direction: column; }
+.main { padding: 10px; flex: 3; }
+#errorLog { padding: 10px; border-left: 1px solid #ccc; margin: 10px; }
+input[type="text"] { padding: 5px; font-size: 1em; width: calc(100% - 12px); margin-bottom: 5px; }
+button { padding: 5px 10px; font-size: 1em; }
+@media (min-width: 800px) { .content { flex-direction: row; } }
