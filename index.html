@@ -2,46 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>German Vocabulary Quiz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>German Vocabulary Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header><h1>German Vocabulary Quiz</h1></header>
-    <div class="status-bar">
-      <span>Level: <span id="level">1</span></span>
-      <span>Score: <span id="score">0</span>/<span id="total">0</span></span>
-      <button id="resetBtn">Reset</button>
-    </div>
-    <div class="content">
-      <div class="main">
-        <section id="nounQuiz">
-          <h2>Noun Quiz</h2>
-          <div id="nounQuestion"></div>
-          <input type="text" id="nounAnswer" placeholder="German noun with article">
-          <button id="checkNoun">Check</button>
-          <div id="nounFeedback"></div>
-        </section>
-        <section id="verbQuiz" style="display:none">
-          <h2>Verb Quiz</h2>
-          <table id="verbTable"></table>
-          <button id="checkVerb">Check</button>
-          <div id="verbFeedback"></div>
-        </section>
-        <section id="lookup">
-          <h2>Lookup Noun/Verb</h2>
-          <input type="text" id="lookupInput" placeholder="Type a German noun or verb">
-          <button id="lookupBtn">Lookup</button>
-          <div id="lookupResult"></div>
-        </section>
-      </div>
-      <aside id="errorLog">
-        <h3>Errors</h3>
-        <ul id="errorList"></ul>
-      </aside>
-    </div>
+  <div id="dashboard">
+    <div>Level: <span id="level">1</span></div>
+    <div>Total Questions: <span id="total">0</span></div>
+    <div>Correct Answers: <span id="correct">0</span></div>
   </div>
-  <script src="script.js"></script>
+
+  <div id="controls">
+    <fieldset id="mode-toggle">
+      <legend>Mode:</legend>
+      <label><input type="radio" name="mode" value="both" checked> Both</label>
+      <label><input type="radio" name="mode" value="nouns"> Nouns only</label>
+      <label><input type="radio" name="mode" value="verbs"> Verbs only</label>
+    </fieldset>
+    <button id="test-btn">Test me</button>
+  </div>
+
+  <div id="quiz-area">
+    <div id="question-area"></div>
+    <input type="text" id="answer-input" placeholder="Type your answer here">
+    <div id="feedback"></div>
+  </div>
+
+  <div id="sidebar">
+    <h3>Incorrect Answers</h3>
+    <ul id="incorrect-list"></ul>
+  </div>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
