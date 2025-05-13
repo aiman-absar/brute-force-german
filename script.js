@@ -1,134 +1,129 @@
+// script.js – fixed version
 
-let level = 1;
-let totalQuestions = 0;
-let correctAnswers = 0;
-let currentAnswer = "";
-let poolNouns = [];
-let poolVerbs = [];
-let allNouns = [];
-let allVerbs = [];
+let nouns = [], verbs = [];
+let currentAnswer = "", currentType = "";
+let totalQuestions = 0, correctAnswers = 0;
 
-// Load nouns and verbs from JSON
-window.onload = function () {
-    Promise.all([
-        fetch('nouns.json').then(res => res.json()),
-        fetch('verbs.json').then(res => res.json())
-    ]).then(([nouns, verbs]) => {
-        allNouns = nouns;
-        allVerbs = verbs;
-        loadNewLevel();
-    });
-
-    document.getElementById('testBtn').addEventListener('click', askQuestion);
-    document.getElementById('submitBtn').addEventListener('click', checkAnswer);
-};
-
-// Shuffle utility
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+// Load data and start quiz
+async function loadData() {
+    try {
+        const nounRes = await fetch('nouns.json');
+        nouns = await nounRes.json();
+        const verbRes = await fetch('verbs.json');
+        verbs = await verbRes.json();
+        askNextQuestion();
+    } catch(err) {
+        console.error(err);
     }
 }
 
-function loadNewLevel() {
-    shuffle(allNouns);
-    shuffle(allVerbs);
-    poolNouns = allNouns.slice(0, 20);
-    poolVerbs = allVerbs.slice(0, 20);
-    document.getElementById('levelNum').textContent = level;
-    totalQuestions = 0;
-    correctAnswers = 0;
-    document.getElementById('totalNum').textContent = totalQuestions;
-    document.getElementById('correctNum').textContent = correctAnswers;
-    document.getElementById('resultDiv').innerHTML = "";
-    document.getElementById('questionDiv').innerHTML = "";
-}
+// Ask the next question (noun or verb)
+function askNextQuestion() {
+    // Randomly choose noun or verb (if both types remain)
+    let quizType = null;
+    if (nouns.length > 0 && verbs.length > 0) {
+        quizType = Math.random() < 0.5 ? 'noun' : 'verb';
+    } else if (nouns.length > 0) {
+        quizType = 'noun';
+    } else if (verbs.length > 0) {
+        quizType = 'verb';
+    }
+    if (!quizType) return;  // no questions left
 
-function askQuestion() {
-    const resultDiv = document.getElementById('resultDiv');
-    const questionDiv = document.getElementById('questionDiv');
-    const submitBtn = document.getElementById('submitBtn');
-    const testBtn = document.getElementById('testBtn');
+    // Set up noun question
+    if (quizType === 'noun') {
+        currentType = 'noun';
+        document.getElementById('nounQuiz').style.display = '';
+        document.getElementById('verbQuiz').style.display = 'none';
+        document.getElementById('nounFeedback').textContent = '';
+        // Pick a random noun
+        const idx = Math.floor(Math.random() * nouns.length);
+        const noun = nouns.splice(idx, 1)[0];
+        // Show the meaning and set expected answer
+        document.getElementById('nounQuestion').innerHTML =
+            `<p>Translate this noun into German (include the article): <strong>${noun.meaning}</strong></p>`;
+        document.getElementById('nounAnswer').value = '';
+        document.getElementById('nounAnswer').focus();
+        currentAnswer = noun.article + ' ' + noun.noun;
+    }
 
-    resultDiv.innerHTML = "";
-    questionDiv.innerHTML = "";
-    submitBtn.style.display = 'none';
-
-    const quizType = Math.random() < 0.5 ? 0 : 1;
-    if (quizType === 0 && poolNouns.length > 0) {
-        const idx = Math.floor(Math.random() * poolNouns.length);
-        const noun = poolNouns.splice(idx, 1)[0];
-        questionDiv.innerHTML = `<p>Translate this noun into German (include article): <strong>${noun.meaning.join(', ')}</strong></p>
-                                 <input type="text" id="answerInput" />`;
-        currentAnswer = noun.article + " " + noun.noun;
-    } else if (quizType === 1 && poolVerbs.length > 0) {
-        const idx = Math.floor(Math.random() * poolVerbs.length);
-        const verb = poolVerbs.splice(idx, 1)[0];
-        const pronouns = [
-            { text: "ich", key: "ich" },
-            { text: "du", key: "du" },
-            { text: "er/sie/es", key: "er" },
-            { text: "wir", key: "wir" },
-            { text: "ihr", key: "ihr" },
-            { text: "sie/Sie", key: "sie" }
-        ];
-        const missing = pronouns[Math.floor(Math.random() * pronouns.length)];
-        let tableHTML = `<p>Conjugate "<strong>${verb.verb}</strong>" (${verb.meaning.join(', ')}) in present tense. Fill in the missing form:</p>`;
-        tableHTML += '<table>';
-        for (const pr of pronouns) {
-            if (pr.key === missing.key) {
-                tableHTML += `<tr><td>${pr.text}</td><td><input type="text" id="answerInput" /></td></tr>`;
-                currentAnswer = verb.conj[pr.key];
+    // Set up verb question
+    if (quizType === 'verb') {
+        currentType = 'verb';
+        document.getElementById('nounQuiz').style.display = 'none';
+        document.getElementById('verbQuiz').style.display = '';
+        document.getElementById('verbFeedback').textContent = '';
+        // Pick a random verb
+        const idx = Math.floor(Math.random() * verbs.length);
+        const verb = verbs.splice(idx, 1)[0];
+        const keys = Object.keys(verb.conjugation);
+        const missingKey = keys[Math.floor(Math.random() * keys.length)];
+        currentAnswer = verb.conjugation[missingKey];
+        // Build a table with all forms, leaving one blank
+        let html = `<p>Conjugate "<strong>${verb.infinitive}</strong>" (${verb.meaning}) in present tense. Fill in the missing form:</p>`;
+        html += '<table><tr><th>Pronoun</th><th>Conjugation</th></tr>';
+        for (let pron of keys) {
+            if (pron === missingKey) {
+                html += `<tr><td>${pron}</td><td><input type="text" id="answerInput"></td></tr>`;
             } else {
-                tableHTML += `<tr><td>${pr.text}</td><td>${verb.conj[pr.key]}</td></tr>`;
+                html += `<tr><td>${pron}</td><td>${verb.conjugation[pron]}</td></tr>`;
             }
         }
-        tableHTML += '</table>';
-        questionDiv.innerHTML = tableHTML;
-    } else {
-        // fallback: no more questions
-        resultDiv.innerHTML = "<p>No more questions in the current level.</p>";
-        return;
-    }
-
-    submitBtn.style.display = 'inline-block';
-    testBtn.disabled = true;
-
-    const input = document.getElementById('answerInput');
-    if (input) {
-        input.focus();
-        input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                checkAnswer();
-            }
-        });
+        html += '</table>';
+        document.getElementById('verbTable').innerHTML = html;
+        document.getElementById('answerInput').focus();
     }
 }
 
-function checkAnswer() {
-    const input = document.getElementById('answerInput');
-    if (!input) return;
-    const userAnswer = input.value.trim().toLowerCase();
-    const correct = currentAnswer.trim().toLowerCase();
+// Check the noun answer
+function checkNounAnswer() {
+    const ans = document.getElementById('nounAnswer').value.trim().toLowerCase();
     totalQuestions++;
-    document.getElementById('totalNum').textContent = totalQuestions;
-    const resultDiv = document.getElementById('resultDiv');
-    if (userAnswer === correct) {
+    document.getElementById('total').textContent = totalQuestions;
+    const feedback = document.getElementById('nounFeedback');
+    if (ans === currentAnswer.toLowerCase()) {
         correctAnswers++;
-        document.getElementById('correctNum').textContent = correctAnswers;
-        resultDiv.innerHTML = '<p class="correct">Correct!</p>';
+        document.getElementById('score').textContent = correctAnswers;
+        feedback.textContent = 'Correct!';
+        feedback.style.color = 'green';
     } else {
-        resultDiv.innerHTML = `<p class="incorrect">Incorrect. The correct answer is: <strong>${currentAnswer}</strong></p>`;
+        feedback.innerHTML = `Incorrect. The correct answer is: <strong>${currentAnswer}</strong>`;
+        feedback.style.color = 'red';
     }
-
-    const accuracy = correctAnswers / totalQuestions;
-    if (totalQuestions >= 20 && accuracy >= 0.9) {
-        level++;
-        resultDiv.innerHTML += `<p class="correct">Congratulations! You reached 90% accuracy and leveled up to Level ${level}!</p>`;
-        loadNewLevel();
-    }
-
-    document.getElementById('testBtn').disabled = false;
-    document.getElementById('submitBtn').style.display = 'none';
+    askNextQuestion();
 }
+
+// Check the verb answer
+function checkVerbAnswer() {
+    const ans = document.getElementById('answerInput').value.trim().toLowerCase();
+    totalQuestions++;
+    document.getElementById('total').textContent = totalQuestions;
+    const feedback = document.getElementById('verbFeedback');
+    if (ans === currentAnswer.toLowerCase()) {
+        correctAnswers++;
+        document.getElementById('score').textContent = correctAnswers;
+        feedback.textContent = 'Correct!';
+        feedback.style.color = 'green';
+    } else {
+        feedback.innerHTML = `Incorrect. The correct answer is: <strong>${currentAnswer}</strong>`;
+        feedback.style.color = 'red';
+    }
+    askNextQuestion();
+}
+
+// Reset button: clear stats and reload questions
+function doReset() {
+    totalQuestions = 0;
+    correctAnswers = 0;
+    document.getElementById('total').textContent = 0;
+    document.getElementById('score').textContent = 0;
+    loadData();
+}
+
+// Set up event handlers after the page loads
+window.addEventListener('load', () => {
+    document.getElementById('checkNoun').addEventListener('click', checkNounAnswer);
+    document.getElementById('checkVerb').addEventListener('click', checkVerbAnswer);
+    document.getElementById('resetBtn').addEventListener('click', doReset);
+    loadData();
+});
