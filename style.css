@@ -1,86 +1,186 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-#dashboard {
-  display: flex;
-  justify-content: space-around;
-  background: #f0f0f0;
-  padding: 10px;
-  font-weight: bold;
-}
-#controls {
-  padding: 10px;
-  background: #fafafa;
-}
-#controls fieldset {
-  border: none;
-  margin: 0;
-  padding: 0;
-}
-#controls label {
-  margin-right: 10px;
-}
-#test-btn {
-  padding: 5px 10px;
-  margin-left: 20px;
-}
-#quiz-area {
-  padding: 10px;
-}
-#question-area {
-  font-size: 1.2em;
-  margin-bottom: 8px;
-}
-#answer-input {
-  width: 100%;
-  max-width: 300px;
-  padding: 5px;
-  font-size: 1em;
-}
-#feedback {
-  margin-top: 5px;
-  font-weight: bold;
-}
-#sidebar {
-  padding: 10px;
-  background: #f9f9f9;
-  border-top: 1px solid #ccc;
-}
-#sidebar h3 {
-  margin-top: 0;
-}
-#incorrect-list {
-  list-style: none;
-  padding-left: 0;
-}
-#incorrect-list li {
-  margin: 4px 0;
+// Load nouns and verbs data, initialize state
+let nouns = [], verbs = [];
+let usedNouns = new Set(), usedVerbs = new Set();
+let nounPool = [], verbPool = [];
+let level = 1, totalAsked = 0, totalCorrect = 0;
+let currentAnswer = null, expectingAnswer = false;
+let currentMode = 'both';
+let incorrectCounts = {};  // key: answer string, value: count
+
+// Pronouns for conjugation
+const pronouns = ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"];
+
+// Utility: shuffle an array in place
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
-/* Layout: put quiz area and sidebar side-by-side on wider screens */
-@media (min-width: 600px) {
-  body {
-    display: flex;
-    flex-direction: column;
-  }
-  #controls, #dashboard {
-    margin: 0 auto;
-    max-width: 800px;
-  }
-  #quiz-area, #sidebar {
-    max-width: 800px;
-    margin: 0 auto;
+// Fetch JSON data files
+window.addEventListener('DOMContentLoaded', () => {
+  fetch('nouns.json')
+    .then(resp => resp.json())
+    .then(data => {
+      nouns = data;
+      fetch('verbs.json')
+        .then(resp => resp.json())
+        .then(vdata => {
+          verbs = vdata;
+          startNewLevel();
+        });
+    });
+  document.getElementById('test-btn').addEventListener('click', onTestButton);
+  // Mode toggle event
+  document.getElementsByName('mode').forEach(radio => {
+    radio.addEventListener('change', () => {
+      currentMode = document.querySelector('input[name="mode"]:checked').value;
+    });
+  });
+});
+
+// Initialize or reset pools for a new level
+function startNewLevel() {
+  // Reset counters
+  totalAsked = 0;
+  totalCorrect = 0;
+  nounPool = [];
+  verbPool = [];
+  // Build noun pool (20 nouns not yet used)
+  let availableNouns = nouns.filter(n => !usedNouns.has(n.article + ' ' + n.noun));
+  shuffle(availableNouns);
+  nounPool = availableNouns.slice(0, 20);
+  nounPool.forEach(n => usedNouns.add(n.article + ' ' + n.noun));
+  // Build verb pool (20 verbs not yet used)
+  let availableVerbs = verbs.filter(v => !usedVerbs.has(v.infinitive));
+  shuffle(availableVerbs);
+  verbPool = availableVerbs.slice(0, 20);
+  verbPool.forEach(v => usedVerbs.add(v.infinitive));
+  // Update dashboard
+  document.getElementById('level').textContent = level;
+  document.getElementById('total').textContent = totalAsked;
+  document.getElementById('correct').textContent = totalCorrect;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('question-area').innerHTML = '';
+  expectingAnswer = false;
+}
+
+// Handle the Test me button click: generate question or check answer
+function onTestButton() {
+  if (!expectingAnswer) {
+    // Generate a new question
+    generateQuestion();
+    expectingAnswer = true;
+  } else {
+    // Check the existing answer
+    checkAnswer();
+    expectingAnswer = false;
+    // After answer, check if level should advance
+    if ( (currentMode !== 'verbs' && nounPool.length === 0) &&
+         (currentMode !== 'nouns' && verbPool.length === 0) ) {
+      // Level finished (all relevant words used)
+      let scoreRatio = totalCorrect / totalAsked;
+      if (scoreRatio >= 0.8) {
+        level++;
+        alert(`Great job! You scored ${(scoreRatio*100).toFixed(0)}%. Leveling up to ${level}.`);
+      } else {
+        alert(`You scored ${(scoreRatio*100).toFixed(0)}%. Try again to reach 80%.`);
+      }
+      startNewLevel();
+    }
   }
 }
-@media (max-width: 599px) {
-  /* On narrow screens, stack elements vertically */
-  body {
-    display: block;
+
+// Generate a noun or verb question based on mode
+function generateQuestion() {
+  let quizType;
+  if (currentMode === 'nouns') {
+    quizType = 'noun';
+  } else if (currentMode === 'verbs') {
+    quizType = 'verb';
+  } else {
+    // Randomly choose noun or verb if both
+    quizType = Math.random() < 0.5 ? 'noun' : 'verb';
   }
-  #controls fieldset {
-    display: flex;
-    flex-direction: column;
+
+  if (quizType === 'noun' && nounPool.length > 0) {
+    // Noun question
+    let entry = nounPool.pop();
+    let eng = entry.meaning;
+    // Decide singular or plural
+    let usePlural = Math.random() < 0.5 && entry.plural;
+    if (usePlural) {
+      eng += 's';  // simple plural in English
+      currentAnswer = entry.plural.toLowerCase();
+    } else {
+      currentAnswer = (entry.article + ' ' + entry.noun).toLowerCase();
+    }
+    document.getElementById('question-area').textContent = `"${eng}" → [article + noun in German]`;
+    document.getElementById('answer-input').value = '';
+    document.getElementById('answer-input').focus();
+    document.getElementById('answer-input').style.display = 'inline';
+    document.getElementById('feedback').textContent = '';
+  }
+  else if (quizType === 'verb' && verbPool.length > 0) {
+    // Verb question
+    let verbEntry = verbPool.pop();
+    let form = verbEntry.conjugation;
+    // Choose a random pronoun to blank out
+    let pron = pronouns[Math.floor(Math.random() * pronouns.length)];
+    // Build a table of conjugations
+    let tableHtml = `<table id="verb-table"><tr><th>Pronoun</th><th>${verbEntry.infinitive} (present tense)</th></tr>`;
+    for (let p of pronouns) {
+      tableHtml += '<tr><td>' + p + '</td><td>';
+      if (p === pron) {
+        tableHtml += `<input type="text" id="verb-input" placeholder="?" autofocus>`;
+      } else {
+        tableHtml += form[p];
+      }
+      tableHtml += '</td></tr>';
+    }
+    tableHtml += '</table>';
+    document.getElementById('question-area').innerHTML = tableHtml;
+    currentAnswer = form[pron].toLowerCase();
+    // Hide the generic answer input for noun
+    document.getElementById('answer-input').style.display = 'none';
+    document.getElementById('feedback').textContent = '';
+  }
+}
+
+// Check the user's answer for noun or verb
+function checkAnswer() {
+  let userAns;
+  if (document.getElementById('verb-input')) {
+    userAns = document.getElementById('verb-input').value.trim().toLowerCase();
+  } else {
+    userAns = document.getElementById('answer-input').value.trim().toLowerCase();
+  }
+  // Update stats
+  totalAsked++;
+  document.getElementById('total').textContent = totalAsked;
+  if (userAns === currentAnswer) {
+    totalCorrect++;
+    document.getElementById('correct').textContent = totalCorrect;
+    document.getElementById('feedback').textContent = 'Correct!';
+  } else {
+    document.getElementById('feedback').textContent = `Incorrect (Correct: "${currentAnswer}")`;
+    // Record incorrect answer
+    let key = currentAnswer;
+    incorrectCounts[key] = (incorrectCounts[key] || 0) + 1;
+    updateIncorrectList();
+  }
+  // Clear question area
+  document.getElementById('question-area').innerHTML = '';
+}
+
+// Update the sidebar list of incorrect answers
+function updateIncorrectList() {
+  let ul = document.getElementById('incorrect-list');
+  ul.innerHTML = '';
+  for (let [word, count] of Object.entries(incorrectCounts)) {
+    let li = document.createElement('li');
+    li.textContent = `${word} ×${count}`;
+    ul.appendChild(li);
   }
 }
