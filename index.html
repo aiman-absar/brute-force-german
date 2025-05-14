@@ -1,52 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>German Vocabulary Quiz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>German Vocabulary Quiz Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="dashboard">
-    <div>Level: <span id="level">1</span></div>
-    <div>Total Questions: <span id="total">0</span></div>
-    <div>Correct Answers: <span id="correct">0</span></div>
-  </div>
-
-  <div id="controls">
-    <fieldset id="mode-toggle">
-      <legend>Mode:</legend>
-      <label><input type="radio" name="mode" value="both" checked> Both</label>
-      <label><input type="radio" name="mode" value="nouns"> Nouns only</label>
-      <label><input type="radio" name="mode" value="verbs"> Verbs only</label>
-    </fieldset>
-    <button id="test-btn">Test me</button>
-  </div>
-
-<!-- noun quiz -->
-  <section id="nounQuiz">
-    <div id="nounQuestion"></div>
-    <input type="text" id="nounAnswer" placeholder="Type your answer here">
-    <button id="checkNoun">Check</button>
-    <div id="nounFeedback"></div>
-  </section>
-
-<!-- verb quiz -->
-  <section id="verbQuiz" style="display:none">
-    <div id="verbTable"></div>
-    <button id="checkVerb">Check</button>
-    <div id="verbFeedback"></div>
-  </section>
-
-  <button id="resetBtn">Reset</button>
-
-
-
-  <div id="sidebar">
-    <h3>Incorrect Answers</h3>
-    <ul id="incorrect-list"></ul>
-  </div>
-
-  <script src="script.js" defer></script>
+<div id="game">
+    <h1>German Vocabulary Quiz</h1>
+    <div id="status">
+        Level: <span id="levelNum">1</span> |
+        Questions: <span id="totalNum">0</span> |
+        Correct: <span id="correctNum">0</span>
+    </div>
+    <button id="testBtn">Test me</button>
+    <div id="questionDiv"></div>
+    <button id="submitBtn" style="display:none;">Submit Answer</button>
+    <div id="resultDiv"></div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
