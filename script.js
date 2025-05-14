@@ -122,8 +122,8 @@ testBtn.addEventListener('click', () => {
         }
         const idx = Math.floor(Math.random() * poolNouns.length);
         const item = poolNouns.splice(idx, 1)[0];
-        questionDiv.innerHTML = <p>Translate this noun into German (include article): <strong>${item.eng}</strong></p>
-                                 <input type="text" id="answerInput" />;
+        questionDiv.innerHTML = `<p>Translate this noun into German (include article): <strong>${item.eng}</strong></p>
+                                 <input type="text" id="answerInput" />`;
         currentAnswer = item.ger;
     } else {
         // Verb conjugation quiz
@@ -144,14 +144,14 @@ testBtn.addEventListener('click', () => {
         ];
         const missing = pronouns[Math.floor(Math.random() * pronouns.length)];
         // Build table
-        let tableHTML = <p>Conjugate "<strong>${verb.infinitive}</strong>" (${verb.meaning}) in present tense. Fill in the missing form:</p>;
+        let tableHTML = `<p>Conjugate "<strong>${verb.infinitive}</strong>" (${verb.meaning}) in present tense. Fill in the missing form:</p>`;
         tableHTML += '<table>';
         pronouns.forEach(pr => {
             if (pr.key === missing.key) {
-                tableHTML += <tr><td>${pr.text}</td><td><input type="text" id="answerInput" /></td></tr>;
+                tableHTML += `<tr><td>${pr.text}</td><td><input type="text" id="answerInput" /></td></tr>`;
                 currentAnswer = verb.forms[pr.key];
             } else {
-                tableHTML += <tr><td>${pr.text}</td><td>${verb.forms[pr.key]}</td></tr>;
+                tableHTML += `<tr><td>${pr.text}</td><td>${verb.forms[pr.key]}</td></tr>`;
             }
         });
         tableHTML += '</table>';
@@ -185,13 +185,13 @@ function checkAnswer() {
         correctNum.textContent = correctAnswers;
         resultDiv.innerHTML = '<p class="correct">Correct!</p>';
     } else {
-        resultDiv.innerHTML = <p class="incorrect">Incorrect. The correct answer is: <strong>${currentAnswer}</strong></p>;
+        resultDiv.innerHTML = `<p class="incorrect">Incorrect. The correct answer is: <strong>${currentAnswer}</strong></p>`;
     }
     // Check for level up (90% accuracy)
     const accuracy = correctAnswers / totalQuestions;
     if (totalQuestions > 0 && accuracy >= 0.9) {
         level++;
-        resultDiv.innerHTML += <p class="correct">Congratulations! You reached 90% accuracy and leveled up to Level ${level}!</p>;
+        resultDiv.innerHTML += `<p class="correct">Congratulations! You reached 90% accuracy and leveled up to Level ${level}!</p>`;
         loadNewLevel();
     }
     // Allow next question
